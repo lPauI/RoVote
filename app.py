@@ -111,6 +111,14 @@ def login():
     return render_template('auth/login.html', form=form)
 
 
+@app.route('/logout')
+def logout():
+    # Clear the user session
+    session.clear()
+    flash('You have been successfully logged out.', 'success')
+    return redirect(url_for('home'))
+
+
 @app.route('/auth/register', methods=['GET', 'POST'])
 def register():
     form = RegisterForm()
