@@ -162,6 +162,11 @@ def register():
 
         
         if form.submit.data:
+            existing_email = Users.query.filter_by(email=email).first()
+            if existing_email:
+                flash("Există deja un cont asociat cu acest email.", "error")
+                return render_template('auth/register.html', form=form)
+            
             otp = form.otp.data
             
             otp_obj = OTP.query.filter_by(email=email).order_by(OTP.created_at.desc()).first()
@@ -188,6 +193,11 @@ def register():
                 form.ci_image.errors.append("Imaginea CI este necesară.")
                 return render_template('auth/register.html', form=form)
             
+            existing_cnp = Users.query.filter_by(cnp=extracted_cnp).first()
+            if existing_cnp:
+                flash("Există deja un cont asociat cu acest CNP.", "error")
+                return render_template('auth/register.html', form=form)
+            
             password = form.password.data
             cnp = extracted_cnp
             
@@ -197,7 +207,8 @@ def register():
             db.session.add(new_user)
             db.session.commit()
             
-            return redirect(url_for('home'))
+            flash("Contul a fost creat cu succes! Acum vă puteți autentifica.", "success")
+            return redirect(url_for('login'))
     
     return render_template('auth/register.html', form=form)
 
