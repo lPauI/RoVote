@@ -140,6 +140,43 @@
             background-color: rgba(237, 137, 54, 0.9);
             color: white;
         }
+        
+        .stats-container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 800px;
+            margin-top: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stats-container h2 {
+            color: #4a5568;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        
+        .chart-container {
+            display: flex;
+            justify-content: center;
+        }
+        
+        .chart-container img {
+            max-width: 100%;
+            border-radius: 8px;
+        }
+        
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 2rem 1rem;
+            font-family: 'Inter', sans-serif;
+        }
     </style>
 </head>
 <body>
@@ -190,6 +227,13 @@
         {% else %}
             <p style="color: #4a5568;">Nu există candidați în acest moment.</p>
         {% endif %}
+    </div>
+    
+    <!-- Vote statistics chart -->
+    <div class="stats-container">
+        <div class="chart-container">
+            <img src="data:image/png;base64,{{ plot_url }}" alt="Statistică voturi">
+        </div>
     </div>
 </body>
 </html>

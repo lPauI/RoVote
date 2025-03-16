@@ -17,6 +17,14 @@ import re
 import os
 import random
 
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+from io import BytesIO
+import base64
+import numpy as np
+from sqlalchemy import func
+
 from extract_ci import find_cnp_from_ci
 
 load_dotenv()
@@ -90,7 +98,53 @@ def home():
         user = Users.query.get(session['user_id'])
         has_voted = user.voted_president is not None
     
-    return render_template('index.html', presidents=presidents, is_logged=is_logged, has_voted=has_voted)
+    # Generate voting statistics chart
+    vote_data = db.session.query(
+        Presidents.name,
+        func.count(Users.voted_president).label('vote_count')
+    ).outerjoin(
+        Users, Presidents.id == Users.voted_president
+    ).group_by(
+        Presidents.name
+    ).all()
+    
+    names = [data[0] for data in vote_data]
+    vote_counts = [data[1] for data in vote_data]
+    
+    # Calculate percentages
+    total_votes = sum(vote_counts) if vote_counts else 1  # Avoid division by zero
+    vote_percentages = [(count / total_votes) * 100 for count in vote_counts]
+    
+    # Create the matplotlib figure
+    plt.figure(figsize=(10, 6))
+    plt.style.use('ggplot')
+    
+    # Create bar chart
+    bars = plt.bar(names, vote_counts, color='#667eea')
+    
+    # Add data labels showing both count and percentage
+    for i, (bar, percentage) in enumerate(zip(bars, vote_percentages)):
+        height = bar.get_height()
+        plt.text(bar.get_x() + bar.get_width()/2., height + 0.1,
+                 f'{int(height)} ({percentage:.1f}%)', ha='center', va='bottom')
+    
+    plt.xlabel('Candidați')
+    plt.ylabel('Număr de voturi')
+    plt.title('Statistica voturilor')
+    plt.tight_layout()
+    
+    # Convert plot to PNG image
+    img = BytesIO()
+    plt.savefig(img, format='png', bbox_inches='tight')
+    img.seek(0)
+    plot_url = base64.b64encode(img.getvalue()).decode('utf8')
+    plt.close()
+    
+    return render_template('index.html', 
+                          presidents=presidents, 
+                          is_logged=is_logged, 
+                          has_voted=has_voted,
+                          plot_url=plot_url)
 
 
 @app.route("/auth/login", methods=['GET', 'POST'])
