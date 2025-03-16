@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for, flash
+from flask import Flask, render_template, redirect, url_for, flash, session
 from flask_wtf import CSRFProtect, FlaskForm
 from flask_wtf.file import FileField, FileAllowed
 from wtforms import StringField, PasswordField, SubmitField
@@ -49,8 +49,14 @@ class Users(db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     cnp = db.Column(db.String(13), unique=True, nullable=False)
     password = db.Column(db.String(128), nullable=False)
-    
-    
+    voted_president = db.Column(db.Integer, db.ForeignKey('presidents.id'), nullable=True)
+
+
+class Presidents(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(120), nullable=False)
+
+
 class OTP(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(120), unique=True, nullable=False)
@@ -75,29 +81,34 @@ class LoginForm(FlaskForm):
 
 @app.route('/')
 def home():
-    return render_template('index.html')
+    presidents = Presidents.query.all()
+    is_logged = 'user_id' in session
+    return render_template('index.html', presidents=presidents, is_logged=is_logged)
 
 
 @app.route("/auth/login", methods=['GET', 'POST'])
 def login():
     form = LoginForm()
-    error = None
+    
     if form.validate_on_submit():
         email = form.email.data
         password = form.password.data
         
+        # Find user by email
         user = Users.query.filter_by(email=email).first()
         
-        if not user:
-            error = "Email-ul nu a fost gasit."
-            return render_template('auth/login.html', form=form, error=error)
-        
-        if not checkpw(password.encode('utf-8'), user.password.encode('utf-8')):
-            error = "Parola este invalida."
-            return render_template('auth/login.html', form=form, error=error)
+        # Check if user exists and password is correct
+        if user and checkpw(password.encode('utf-8'), user.password.encode('utf-8')):
+            # Set up session
+            session['user_id'] = user.id
+            session['email'] = user.email
             
-        return redirect(url_for('home'))
-    return render_template('auth/login.html', form=form, error=error)
+            flash('Login successful!', 'success')
+            return redirect(url_for('home'))
+        else:
+            flash('Invalid email or password. Please try again.', 'error')
+    
+    return render_template('auth/login.html', form=form)
 
 
 @app.route('/auth/register', methods=['GET', 'POST'])
@@ -149,6 +160,7 @@ def register():
                 file = form.ci_image.data
                 filename = secure_filename(file.filename)
                 upload_folder = os.path.join('static', 'uploads')
+                
                 os.makedirs(upload_folder, exist_ok=True)
                 temp_path = os.path.join(upload_folder, filename)
                 file.save(temp_path)
