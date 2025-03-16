@@ -6,5 +6,8 @@ python-dotenv==1.0.1
 bcrypt==4.3.0
 SQLAlchemy==2.0.39
 cryptography==44.0.2
-opencv-python==4.9.0.80
+opencv-python==4.11.0.86
 pytesseract==0.3.13
+flask-wtf==1.2.2
+flask-sqlalchemy==3.1.1
+pymysql==1.1.1
