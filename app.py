@@ -22,7 +22,6 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from io import BytesIO
 import base64
-import numpy as np
 from sqlalchemy import func
 
 from extract_ci import find_cnp_from_ci
