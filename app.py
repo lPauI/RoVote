@@ -66,7 +66,7 @@ class OTP(db.Model):
 
 class RegisterForm(FlaskForm):
     email = StringField('Email', validators=[DataRequired(), Email()])
-    password = PasswordField('Password', validators=[DataRequired()])
+    password = PasswordField('Password')
     ci_image = FileField('CI Image', validators=[FileAllowed(['jpg', 'jpeg', 'png'], 'Doar imagini!')])
     otp = StringField('OTP Code', validators=[validate_otp])
     send_otp = SubmitField('Send OTP')
@@ -178,6 +178,11 @@ def register():
                 form.otp.errors.append("OTP-ul este invalid.")
                 return render_template('auth/register.html', form=form)
             
+            password = form.password.data
+            if not password or len(password) < 6:
+                form.password.errors.append("Parola trebuie să conțină cel puțin 6 caractere.")
+                return render_template('auth/register.html', form=form)
+            
             if form.ci_image.data:
                 file = form.ci_image.data
                 filename = secure_filename(file.filename)
@@ -201,7 +206,6 @@ def register():
                 flash("Există deja un cont asociat cu acest CNP.", "error")
                 return render_template('auth/register.html', form=form)
             
-            password = form.password.data
             cnp = extracted_cnp
             
             password = hashpw(password.encode('utf-8'), gensalt()).decode('utf-8')
