@@ -10,6 +10,7 @@ from email.message import EmailMessage
 from dotenv import load_dotenv
 from os import getenv
 from bcrypt import hashpw, gensalt, checkpw
+from datetime import datetime, timedelta
 
 import smtplib
 import re
@@ -144,9 +145,13 @@ def register():
             msg["From"] = getenv("SMTP_EMAIL")
             msg["To"] = email
             
+            # Insert OTP into database
+            
             new_otp = OTP(email=email, otp=otp)
             db.session.add(new_otp)
             db.session.commit()
+            
+            # Send the OTP via email
             
             try:
                 with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
@@ -160,6 +165,7 @@ def register():
             flash("OTP sent successfully!", "success")
             return render_template('auth/register.html', form=form)
 
+        # Check if user has already an account
         
         if form.submit.data:
             existing_email = Users.query.filter_by(email=email).first()
@@ -170,6 +176,15 @@ def register():
             otp_obj = OTP.query.filter_by(email=email).order_by(OTP.created_at.desc()).first()
             if not otp_obj:
                 flash("Trebuie să solicitați un cod OTP înainte de înregistrare.", "error")
+                return render_template('auth/register.html', form=form)
+            
+            # Check if OTP has expired (15 minutes)
+            current_time = datetime.utcnow()
+            otp_time = otp_obj.created_at
+            time_difference = current_time - otp_time
+            
+            if time_difference > timedelta(minutes=15):
+                flash("OTP-ul a expirat. Codul este valabil doar 15 minute. Vă rugăm să solicitați un nou cod.", "error")
                 return render_template('auth/register.html', form=form)
             
             otp = form.otp.data
