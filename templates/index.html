@@ -231,9 +231,18 @@
     
     <!-- Vote statistics chart -->
     <div class="stats-container">
+        <h2>Statistica voturilor</h2>
         <div class="chart-container">
             <img src="data:image/png;base64,{{ plot_url }}" alt="Statistică voturi">
         </div>
+        
+        {% if is_admin %}
+        <div class="admin-controls">
+            <a href="{{ url_for('end_elections') }}" class="end-elections-button" onclick="return confirm('Sunteți sigur că doriți să încheiați alegerile? Această acțiune nu poate fi anulată.');">
+                Terminare alegeri
+            </a>
+        </div>
+        {% endif %}
     </div>
 </body>
 </html>

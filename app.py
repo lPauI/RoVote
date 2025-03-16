@@ -59,6 +59,7 @@ class Users(db.Model):
     cnp = db.Column(db.String(13), unique=True, nullable=False)
     password = db.Column(db.String(128), nullable=False)
     voted_president = db.Column(db.Integer, db.ForeignKey('presidents.id'), nullable=True)
+    admin = db.Column(db.Boolean, default=False)
 
 
 class Presidents(db.Model):
@@ -94,9 +95,12 @@ def home():
     is_logged = 'user_id' in session
     
     has_voted = False
+    is_admin = False
+    
     if is_logged:
         user = Users.query.get(session['user_id'])
         has_voted = user.voted_president is not None
+        is_admin = user.admin  # Check if user is an admin
     
     # Generate voting statistics chart
     vote_data = db.session.query(
@@ -144,6 +148,7 @@ def home():
                           presidents=presidents, 
                           is_logged=is_logged, 
                           has_voted=has_voted,
+                          is_admin=is_admin,
                           plot_url=plot_url)
 
 
@@ -321,6 +326,88 @@ def vote(president_id):
         return redirect(url_for('home'))
     
     return render_template('vote.html', president=president)
+
+
+@app.route('/end-elections')
+def end_elections():
+    # Check if user is logged in and is an admin
+    if 'user_id' not in session:
+        flash('Trebuie să fiți autentificat pentru această acțiune.', 'error')
+        return redirect(url_for('home'))
+    
+    user = Users.query.get(session['user_id'])
+    if not user or not user.admin:
+        flash('Nu aveți permisiunea de a efectua această acțiune.', 'error')
+        return redirect(url_for('home'))
+    
+    # Find the winner of the election
+    vote_results = db.session.query(
+        Presidents.id,
+        Presidents.name,
+        func.count(Users.voted_president).label('vote_count')
+    ).outerjoin(
+        Users, Presidents.id == Users.voted_president
+    ).group_by(
+        Presidents.id, Presidents.name
+    ).order_by(
+        func.count(Users.voted_president).desc()
+    ).all()
+    
+    if not vote_results or vote_results[0][2] == 0:
+        flash('Nu există voturi înregistrate.', 'warning')
+        return redirect(url_for('home'))
+    
+    # Get the winner (first in the sorted results)
+    winner_id, winner_name, winner_votes = vote_results[0]
+    total_votes = sum(result[2] for result in vote_results)
+    winner_percentage = (winner_votes / total_votes) * 100 if total_votes > 0 else 0
+    
+    # Get all users who have voted
+    voters = Users.query.filter(Users.voted_president.isnot(None)).all()
+    
+    if voters:
+        # Prepare email
+        subject = "Rezultatele Alegerilor Prezidențiale"
+        
+        # Create a detailed message with all candidates and their results
+        results_text = "Rezultate finale:\n\n"
+        for president_id, president_name, votes in vote_results:
+            percentage = (votes / total_votes) * 100 if total_votes > 0 else 0
+            results_text += f"- {president_name}: {votes} voturi ({percentage:.1f}%)\n"
+        
+        body = f"""Dragă votant,
+
+        Alegerile prezidențiale s-au încheiat.
+
+        Câștigătorul este {winner_name} cu {winner_votes} voturi ({winner_percentage:.1f}%).
+
+        {results_text}
+
+        Vă mulțumim pentru participare!
+
+        Cu considerație,
+        Echipa RoVote
+        """
+        
+        # Send email to each voter
+        for voter in voters:
+            try:
+                msg = EmailMessage()
+                msg.set_content(body)
+                msg["Subject"] = subject
+                msg["From"] = getenv("SMTP_EMAIL")
+                msg["To"] = voter.email
+                
+                with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+                    server.login(getenv("SMTP_EMAIL"), getenv("SMTP_PASSWORD"))
+                    server.send_message(msg)
+                
+            except Exception as e:
+                # Log the error but continue with other emails
+                print(f"Error sending email to {voter.email}: {str(e)}")
+    
+    flash('Alegerile au fost încheiate cu succes! Rezultatele au fost trimise prin email tuturor participanților.', 'success')
+    return redirect(url_for('home'))
 
 
 if __name__ == '__main__':
