@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for, flash, session
+from flask import Flask, render_template, redirect, url_for, flash, session, request
 from flask_wtf import CSRFProtect, FlaskForm
 from flask_wtf.file import FileField, FileAllowed
 from wtforms import StringField, PasswordField, SubmitField
@@ -194,6 +194,30 @@ def register():
             return redirect(url_for('home'))
     
     return render_template('auth/register.html', form=form)
+
+
+@app.route('/vote/<int:president_id>', methods=['GET', 'POST'])
+def vote(president_id):
+    if 'user_id' not in session:
+        flash('Trebuie să fiți autentificat pentru a vota.', 'error')
+        return redirect(url_for('login'))
+    
+    president = Presidents.query.get_or_404(president_id)
+    
+    user = Users.query.get(session['user_id'])
+    
+    if user.voted_president is not None:
+        flash('Ați ales deja un președinte.', 'error')
+        return redirect(url_for('home'))
+    
+    if request.method == 'POST':
+        user.voted_president = president_id
+        db.session.commit()
+        
+        flash(f'Ați votat cu succes pentru {president.name}!', 'success')
+        return redirect(url_for('home'))
+    
+    return render_template('vote.html', president=president)
 
 
 if __name__ == '__main__':
