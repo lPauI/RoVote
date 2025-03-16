@@ -22,5 +22,3 @@ def find_cnp_from_ci(ci_path):
         return 'CNP was not found'
 
     return matches.group(0)
-    
-print(find_cnp_from_ci('ci2.jpg'))
