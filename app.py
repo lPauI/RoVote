@@ -109,7 +109,7 @@ class LoginForm(FlaskForm):
 
 @app.route('/')
 def home():
-    presidents = Presidents.query.all()
+    presidents = Presidents.query.order_by(func.random()).all()
     is_logged = 'user_id' in session
     
     has_voted = False
