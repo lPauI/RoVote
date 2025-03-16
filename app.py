@@ -167,9 +167,12 @@ def register():
                 flash("Există deja un cont asociat cu acest email.", "error")
                 return render_template('auth/register.html', form=form)
             
-            otp = form.otp.data
-            
             otp_obj = OTP.query.filter_by(email=email).order_by(OTP.created_at.desc()).first()
+            if not otp_obj:
+                flash("Trebuie să solicitați un cod OTP înainte de înregistrare.", "error")
+                return render_template('auth/register.html', form=form)
+            
+            otp = form.otp.data
             
             if otp_obj.otp != otp:
                 form.otp.errors.append("OTP-ul este invalid.")
