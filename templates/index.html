@@ -95,6 +95,15 @@
         .logout-button:hover {
             background: #c53030;
         }
+        
+        .voted-message {
+            color: #38a169;
+            text-align: center;
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            background: rgba(198, 246, 213, 0.6);
+            border-radius: 6px;
+        }
     </style>
 </head>
 <body>
@@ -113,6 +122,10 @@
                 <a href="{{ url_for('login') }}" class="login-link">autentificați</a> sau să vă 
                 <a href="{{ url_for('register') }}" class="login-link">înregistrați</a>.
             </div>
+        {% elif has_voted %}
+            <div class="voted-message">
+                Ați votat deja. Fiecare cetățean poate vota o singură dată.
+            </div>
         {% endif %}
         
         {% if presidents %}
@@ -120,7 +133,7 @@
             {% for president in presidents %}
                 <div class="president-card">
                     <h3>{{ president.name }}</h3>
-                    {% if is_logged %}
+                    {% if is_logged and not has_voted %}
                         <button class="vote-button" onclick="location.href='/vote/{{ president.id }}'">Vote</button>
                     {% else %}
                         <button class="vote-button" disabled style="opacity: 0.6; cursor: not-allowed;">Vote</button>

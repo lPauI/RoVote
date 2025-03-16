@@ -59,7 +59,7 @@ class Presidents(db.Model):
 
 class OTP(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(120), unique=True, nullable=False)
+    email = db.Column(db.String(120), nullable=False)
     otp = db.Column(db.String(6), nullable=False)
     created_at = db.Column(db.DateTime, server_default=db.func.now())
 
@@ -83,7 +83,13 @@ class LoginForm(FlaskForm):
 def home():
     presidents = Presidents.query.all()
     is_logged = 'user_id' in session
-    return render_template('index.html', presidents=presidents, is_logged=is_logged)
+    
+    has_voted = False
+    if is_logged:
+        user = Users.query.get(session['user_id'])
+        has_voted = user.voted_president is not None
+    
+    return render_template('index.html', presidents=presidents, is_logged=is_logged, has_voted=has_voted)
 
 
 @app.route("/auth/login", methods=['GET', 'POST'])
