@@ -1,10 +1,16 @@
+import sys
 import cv2
 import pytesseract
 import re
 import tempfile
 import os
 
-pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+if sys.platform.startswith('win'):
+    pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+
+else:
+    pytesseract.pytesseract.tesseract_cmd = '/usr/bin/tesseract'
+
 
 def find_cnp_from_ci(ci_path):
     image = cv2.imread(ci_path)
