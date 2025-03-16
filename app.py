@@ -95,6 +95,11 @@ def home():
 
 @app.route("/auth/login", methods=['GET', 'POST'])
 def login():
+    # Redirect to home if already logged in
+    if 'user_id' in session:
+        flash('Sunteți deja autentificat.', 'info')
+        return redirect(url_for('home'))
+    
     form = LoginForm()
     
     if form.validate_on_submit():
@@ -128,6 +133,11 @@ def logout():
 
 @app.route('/auth/register', methods=['GET', 'POST'])
 def register():
+    # Redirect to home if already logged in
+    if 'user_id' in session:
+        flash('Sunteți deja autentificat. Deconectați-vă pentru a crea un cont nou.', 'info')
+        return redirect(url_for('home'))
+    
     form = RegisterForm()
     
     if form.validate_on_submit():
