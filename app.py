@@ -1,17 +1,20 @@
-from flask import Flask, render_template, redirect, url_for
+from flask import Flask, render_template, redirect, url_for, flash
 from flask_wtf import CSRFProtect, FlaskForm
 from flask_wtf.file import FileField, FileAllowed
 from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import DataRequired, Email, ValidationError
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.utils import secure_filename
+from email.message import EmailMessage
 
 from dotenv import load_dotenv
 from os import getenv
 from bcrypt import hashpw, gensalt, checkpw
 
+import smtplib
 import re
 import os
+import random
 
 from extract_ci import find_cnp_from_ci
 
@@ -35,6 +38,10 @@ def validate_cnp(form, field):
     pattern = re.compile(r'^[1-6]\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])(?:(?!999)\d{3}|999)\d{3}$')
     if not pattern.fullmatch(field.data):
         raise ValidationError("CNP invalid.")
+    
+
+def validate_otp(form, field):
+    return ValidationError("OTP invalid.")
 
 
 class Users(db.Model):
@@ -42,12 +49,21 @@ class Users(db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     cnp = db.Column(db.String(13), unique=True, nullable=False)
     password = db.Column(db.String(128), nullable=False)
+    
+    
+class OTP(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    otp = db.Column(db.String(6), nullable=False)
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
 
 
 class RegisterForm(FlaskForm):
     email = StringField('Email', validators=[DataRequired(), Email()])
     password = PasswordField('Password', validators=[DataRequired()])
     ci_image = FileField('CI Image', validators=[FileAllowed(['jpg', 'jpeg', 'png'], 'Doar imagini!')])
+    otp = StringField('OTP Code', validators=[validate_otp])
+    send_otp = SubmitField('Send OTP')
     submit = SubmitField('Register')
 
 
@@ -80,7 +96,7 @@ def login():
             error = "Parola este invalida."
             return render_template('auth/login.html', form=form, error=error)
             
-        return render_template("index.html")
+        return redirect(url_for('home'))
     return render_template('auth/login.html', form=form, error=error)
 
 
@@ -89,34 +105,73 @@ def register():
     form = RegisterForm()
     
     if form.validate_on_submit():
-        if form.ci_image.data:
-            file = form.ci_image.data
-            filename = secure_filename(file.filename)
-            upload_folder = os.path.join('static', 'uploads')
-            os.makedirs(upload_folder, exist_ok=True)
-            temp_path = os.path.join(upload_folder, filename)
-            file.save(temp_path)
-            
-            extracted_cnp = find_cnp_from_ci(temp_path)
-            if extracted_cnp == 'CNP was not found':
-                form.ci_image.errors.append("CNP-ul nu a putut fi extras din imaginea CI.")
-                return render_template('auth/register.html', form=form)
-        
-        else:
-            form.ci_image.errors.append("Imaginea CI este necesară.")
-            return render_template('auth/register.html', form=form)
-        
         email = form.email.data
-        password = form.password.data
-        cnp = extracted_cnp
         
-        password = hashpw(password.encode('utf-8'), gensalt()).decode('utf-8')
+        if form.send_otp.data:
+            otp = random.randint(100000, 999999)
+            
+            subject = "OTP from Code4Gov"
+            body = f"Your OTP is {otp}\n\nYou have 15 minutes to use this code."
+            
+            msg = EmailMessage()
+            msg.set_content(body)
+            msg["Subject"] = subject
+            msg["From"] = getenv("SMTP_EMAIL")
+            msg["To"] = email
+            
+            new_otp = OTP(email=email, otp=otp)
+            db.session.add(new_otp)
+            db.session.commit()
+            
+            try:
+                with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+                    server.login(getenv("SMTP_EMAIL"), getenv("SMTP_PASSWORD"))
+                    server.send_message(msg)
+                    
+            except Exception as e:
+                flash(f"Error sending OTP: {str(e)}", "error")
+                return render_template('auth/register.html', form=form)
+            
+            flash("OTP sent successfully!", "success")
+            return render_template('auth/register.html', form=form)
 
-        new_user = Users(email=email, password=password, cnp=cnp)
-        db.session.add(new_user)
-        db.session.commit()
         
-        return redirect(url_for('home'))
+        if form.submit.data:
+            otp = form.otp.data
+            
+            otp_obj = OTP.query.filter_by(email=email).order_by(OTP.created_at.desc()).first()
+            
+            if otp_obj.otp != otp:
+                form.otp.errors.append("OTP-ul este invalid.")
+                return render_template('auth/register.html', form=form)
+            
+            if form.ci_image.data:
+                file = form.ci_image.data
+                filename = secure_filename(file.filename)
+                upload_folder = os.path.join('static', 'uploads')
+                os.makedirs(upload_folder, exist_ok=True)
+                temp_path = os.path.join(upload_folder, filename)
+                file.save(temp_path)
+                
+                extracted_cnp = find_cnp_from_ci(temp_path)
+                if extracted_cnp == 'CNP was not found':
+                    form.ci_image.errors.append("CNP-ul nu a putut fi extras din imaginea CI.")
+                    return render_template('auth/register.html', form=form)
+            
+            else:
+                form.ci_image.errors.append("Imaginea CI este necesară.")
+                return render_template('auth/register.html', form=form)
+            
+            password = form.password.data
+            cnp = extracted_cnp
+            
+            password = hashpw(password.encode('utf-8'), gensalt()).decode('utf-8')
+
+            new_user = Users(email=email, password=password, cnp=cnp)
+            db.session.add(new_user)
+            db.session.commit()
+            
+            return redirect(url_for('home'))
     
     return render_template('auth/register.html', form=form)
 
