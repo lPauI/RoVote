@@ -1,0 +1,237 @@
+:root {
+    --primary: #4361ee;
+    --primary-hover: #3a56d4;
+    --secondary: #4cc9f0;
+    --danger: #ef476f;
+    --danger-hover: #d64062;
+    --success: #06d6a0;
+    --success-hover: #05b889;
+    --warning: #ffd166;
+    --text-dark: #2b2d42;
+    --text-light: #8d99ae;
+    --bg-light: #f8f9fa;
+    --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 2rem 1rem;
+    font-family: 'Inter', sans-serif;
+    color: var(--text-dark);
+    position: relative;
+    overflow-x: hidden;
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    z-index: -1;
+}
+
+h1 {
+    font-size: 3rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 2.5rem;
+    position: relative;
+    color: var(--primary);
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    line-height: 1.2;
+}
+
+.vote-container {
+    background: white;
+    padding: 2.5rem;
+    border-radius: 16px;
+    box-shadow: var(--card-shadow);
+    width: 100%;
+    max-width: 550px;
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+}
+
+.vote-container::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 6px;
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+}
+
+h2 {
+    color: var(--text-dark);
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+}
+
+.president-name {
+    font-size: 1.25rem;
+    color: var(--text-dark);
+    margin-bottom: 2rem;
+    padding: 1.25rem;
+    background: var(--bg-light);
+    border-radius: 12px;
+    border-left: 4px solid var(--primary);
+}
+
+.president-name strong {
+    font-weight: 600;
+    color: var(--primary);
+}
+
+.button-group {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+}
+
+.confirm-button {
+    background: var(--success);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 0.8rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(6, 214, 160, 0.2);
+}
+
+.confirm-button:hover {
+    background: var(--success-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 10px rgba(6, 214, 160, 0.3);
+}
+
+.cancel-button {
+    background: var(--danger);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 0.8rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+    box-shadow: 0 4px 6px rgba(239, 71, 111, 0.2);
+}
+
+.cancel-button:hover {
+    background: var(--danger-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 10px rgba(239, 71, 111, 0.3);
+}
+
+.warning {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background: rgba(255, 209, 102, 0.15);
+    color: #b38728;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    border-left: 4px solid var(--warning);
+    text-align: left;
+    display: flex;
+    align-items: center;
+}
+
+.warning::before {
+    content: "⚠️";
+    margin-right: 0.5rem;
+    font-size: 1.2rem;
+}
+
+.flashes {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 1.5rem;
+    width: 100%;
+    max-width: 550px;
+}
+
+.success, .error {
+    padding: 1rem 1.5rem;
+    margin-bottom: 1rem;
+    border-radius: 10px;
+    text-align: center;
+    font-weight: 500;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.success {
+    background-color: rgba(6, 214, 160, 0.15);
+    color: #057a5b;
+}
+
+.success::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background-color: var(--success);
+}
+
+.error {
+    background-color: rgba(239, 71, 111, 0.15);
+    color: #b02a4a;
+}
+
+.error::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background-color: var(--danger);
+}
+
+@media (max-width: 768px) {
+    h1 {
+        font-size: 2.2rem;
+    }
+    
+    .vote-container {
+        padding: 1.5rem;
+        border-radius: 12px;
+    }
+    
+    h2 {
+        font-size: 1.3rem;
+    }
+    
+    .president-name {
+        font-size: 1.1rem;
+        padding: 1rem;
+    }
+    
+    .button-group {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    
+    .confirm-button, .cancel-button {
+        width: 100%;
+    }
+}
