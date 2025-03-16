@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RoVote</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <title>RoVote Register</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/register.css') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <h1>RoVote Register</h1>
@@ -27,14 +27,15 @@
         
         <div class="form-group">
             <h2>Email</h2>
-            {{ form.email(class="input-field", placeholder="Introduceți emailul") }}
-            {% if form.email.errors %}
-                <div class="error-message">{{ form.email.errors[0] }}</div>
-            {% endif %}
-        </div>
-
-        <div class="form-group">
-            {{ form.send_otp(class="submit-button", value="Trimite OTP") }}
+            <div class="email-group">
+                <div class="email-input">
+                    {{ form.email(class="input-field", placeholder="Introduceți emailul") }}
+                    {% if form.email.errors %}
+                        <div class="error-message">{{ form.email.errors[0] }}</div>
+                    {% endif %}
+                </div>
+                {{ form.send_otp(class="otp-button", value="Trimite OTP") }}
+            </div>
         </div>
 
         <div class="form-group">
@@ -55,13 +56,34 @@
 
         <div class="form-group">
             <h2>Imagine CI</h2>
-            {{ form.ci_image(class="input-field") }}
+            <label for="ci_image" class="file-upload-label">
+                <svg class="file-upload-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="17 8 12 3 7 8"></polyline>
+                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+                <span class="file-upload-text">Încărcați imaginea CI</span>
+            </label>
+            {{ form.ci_image(id="ci_image", style="display: none;") }}
+            <div id="file-name" style="font-size: 0.875rem; color: var(--text-light); text-align: center;"></div>
             {% if form.ci_image.errors %}
                 <div class="error-message">{{ form.ci_image.errors[0] }}</div>
             {% endif %}
         </div>
         
         {{ form.submit(class="submit-button") }}
+        
+        <p class="login-link">
+            Aveți deja cont? <a href="{{ url_for('login') }}">Autentificați-vă</a>
+        </p>
     </form>
+
+    <script>
+        // Display file name when selected
+        document.getElementById('ci_image').addEventListener('change', function() {
+            const fileName = this.files[0] ? this.files[0].name : 'No file selected';
+            document.getElementById('file-name').textContent = fileName;
+        });
+    </script>
 </body>
 </html>
