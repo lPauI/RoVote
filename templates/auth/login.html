@@ -4,35 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RoVote Login</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-    <style>
-        .flashes {
-            list-style: none;
-            padding: 0;
-            margin-bottom: 1rem;
-        }
-        
-        .success {
-            color: #38a169;
-            text-align: center;
-            margin-bottom: 1rem;
-            padding: 0.75rem;
-            background: rgba(198, 246, 213, 0.6);
-            border-radius: 6px;
-        }
-        
-        .error {
-            color: #e53e3e;
-            text-align: center;
-            margin-bottom: 1rem;
-            padding: 0.75rem;
-            background: rgba(254, 215, 215, 0.6);
-            border-radius: 6px;
-        }
-    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <h1>RoVote Login</h1>
@@ -67,6 +42,10 @@
         </div>
         
         {{ form.submit(class="submit-button", value="Login") }}
+        
+        <p class="register-link">
+            Nu aveți cont? <a href="{{ url_for('register') }}">Înregistrați-vă</a>
+        </p>
     </form>
 </body>
 </html>
