@@ -4,190 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RoVote</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&isplay=swap" rel="stylesheet">
     <style>
-        .presidents-container {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 2rem 3rem;
-            border-radius: 15px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 500px;
-        }
         
-        .president-card {
-            margin-bottom: 1rem;
-            padding: 1rem;
-            border: 2px solid #e2e8f0;
-            border-radius: 8px;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .president-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-        }
-        
-        .president-card h3 {
-            margin: 0;
-            color: #4a5568;
-        }
-        
-        .vote-button {
-            background: #667eea;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            padding: 0.5rem 1rem;
-            font-size: 0.9rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-        
-        .vote-button:hover {
-            background: #764ba2;
-        }
-        
-        .login-message {
-            color: #e53e3e;
-            text-align: center;
-            margin-bottom: 1rem;
-            padding: 0.75rem;
-            background: rgba(254, 215, 215, 0.6);
-            border-radius: 6px;
-        }
-        
-        .login-link {
-            color: #4299e1;
-            text-decoration: none;
-            font-weight: 600;
-        }
-        
-        .login-link:hover {
-            text-decoration: underline;
-        }
-        
-        .user-controls {
-            display: flex;
-            justify-content: flex-end;
-            margin-bottom: 1rem;
-        }
-        
-        .logout-button {
-            background: #e53e3e;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            padding: 0.5rem 1rem;
-            font-size: 0.9rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-        
-        .logout-button:hover {
-            background: #c53030;
-        }
-        
-        .voted-message {
-            color: #38a169;
-            text-align: center;
-            margin-bottom: 1rem;
-            padding: 0.75rem;
-            background: rgba(198, 246, 213, 0.6);
-            border-radius: 6px;
-        }
-        
-        /* New styles for flash messages */
-        .flash-messages {
-            width: 100%;
-            max-width: 500px;
-            margin-bottom: 1.5rem;
-        }
-        
-        .flash {
-            padding: 1rem;
-            margin-bottom: 0.75rem;
-            border-radius: 8px;
-            text-align: center;
-            font-weight: 500;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-        
-        .flash.success {
-            background-color: rgba(56, 161, 105, 0.9);
-            color: white;
-        }
-        
-        .flash.error {
-            background-color: rgba(229, 62, 62, 0.9);
-            color: white;
-        }
-        
-        .flash.info {
-            background-color: rgba(66, 153, 225, 0.9);
-            color: white;
-        }
-        
-        .flash.warning {
-            background-color: rgba(237, 137, 54, 0.9);
-            color: white;
-        }
-        
-        .stats-container {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 2rem;
-            border-radius: 15px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 800px;
-            margin-top: 2rem;
-            margin-bottom: 2rem;
-        }
-        
-        .stats-container h2 {
-            color: #4a5568;
-            margin-bottom: 1.5rem;
-            text-align: center;
-        }
-        
-        .chart-container {
-            display: flex;
-            justify-content: center;
-        }
-        
-        .chart-container img {
-            max-width: 100%;
-            border-radius: 8px;
-        }
-        
-        .no-votes-message {
-            text-align: center;
-            color: #718096;
-            font-style: italic;
-            margin: 2rem 0;
-        }
-        
-        body {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            padding: 2rem 1rem;
-            font-family: 'Inter', sans-serif;
-        }
     </style>
 </head>
 <body>
-    <h1 class="app-title">RoVote <span>Lista candidaților pentru preșendenție</span></h1>
+    <h1 class="app-title">RoVote<div>Lista candidaților pentru preșendenție</div></h1>
     
     <!-- Flash messages -->
     {% with messages = get_flashed_messages(with_categories=true) %}
@@ -220,19 +46,19 @@
         {% endif %}
         
         {% if presidents %}
-            <h2 style="color: #4a5568; margin-bottom: 1rem;">Lista candidaților</h2>
+            <h2 style="color: var(--text-dark); margin-bottom: 1.5rem; font-size: 1.4rem; text-align: center;">Lista candidaților</h2>
             {% for president in presidents %}
                 <div class="president-card">
                     <h3>{{ president.name }}</h3>
                     {% if is_logged and not has_voted %}
                         <button class="vote-button" onclick="location.href='/vote/{{ president.id }}'">Vote</button>
                     {% else %}
-                        <button class="vote-button" disabled style="opacity: 0.6; cursor: not-allowed;">Vote</button>
+                        <button class="vote-button" disabled style="opacity: 0.6; cursor: not-allowed; background: #a0aec0;">Vote</button>
                     {% endif %}
                 </div>
             {% endfor %}
         {% else %}
-            <p style="color: #4a5568;">Nu există candidați în acest moment.</p>
+            <p style="color: var(--text-light); text-align: center; padding: 1.5rem; background: var(--bg-light); border-radius: 10px;">Nu există candidați în acest moment.</p>
         {% endif %}
     </div>
     
