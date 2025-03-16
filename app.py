@@ -415,7 +415,7 @@ Câștigătorul este {winner_name} cu {winner_votes} voturi ({winner_percentage:
 
 {results_text}
 
-Vă mulțumim pentru participare!
+Vă mulțumim mult pentru participare!
 
 Cu considerație,
 Echipa RoVote
