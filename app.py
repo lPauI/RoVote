@@ -24,9 +24,28 @@ from io import BytesIO
 import base64
 from sqlalchemy import func
 
+from cryptography.fernet import Fernet
+
 from extract_ci import find_cnp_from_ci
 
 load_dotenv()
+
+
+def get_encryption_key():
+    key = getenv('ENCRYPTION_KEY')
+    if not key:
+        raise ValueError("ENCRYPTION_KEY not found in environment variables")
+    return key.encode()
+
+
+def encrypt_cnp(cnp):
+    cipher = Fernet(get_encryption_key())
+    return cipher.encrypt(cnp.encode()).decode()
+
+def decrypt_cnp(encrypted_cnp):
+    cipher = Fernet(get_encryption_key())
+    return cipher.decrypt(encrypted_cnp.encode()).decode()
+
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = getenv('FLASK_SECRET_KEY')
@@ -55,7 +74,7 @@ def validate_otp(form, field):
 class Users(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    cnp = db.Column(db.String(13), unique=True, nullable=False)
+    cnp = db.Column(db.String(255), unique=True, nullable=False)
     password = db.Column(db.String(128), nullable=False)
     voted_president = db.Column(db.Integer, db.ForeignKey('presidents.id'), nullable=True)
     admin = db.Column(db.Boolean, default=False)
@@ -290,16 +309,24 @@ def register():
                 form.ci_image.errors.append("Imaginea CI este necesară.")
                 return render_template('auth/register.html', form=form)
             
-            existing_cnp = Users.query.filter_by(cnp=extracted_cnp).first()
-            if existing_cnp:
-                flash("Există deja un cont asociat cu acest CNP.", "error")
-                return render_template('auth/register.html', form=form)
+            # First encrypt the extracted CNP
+            encrypted_cnp = encrypt_cnp(extracted_cnp)
             
-            cnp = extracted_cnp
+            # Check if this CNP already exists by querying and decrypting
+            all_users = Users.query.all()
+            for user in all_users:
+                try:
+                    if decrypt_cnp(user.cnp) == extracted_cnp:
+                        flash("Există deja un cont asociat cu acest CNP.", "error")
+                        return render_template('auth/register.html', form=form)
+                except Exception:
+                    continue  # Skip any invalid encrypted values
+            
+            cnp = encrypted_cnp
             
             password = hashpw(password.encode('utf-8'), gensalt()).decode('utf-8')
 
-            new_user = Users(email=email, password=password, cnp=cnp)
+            new_user = Users(email=email, password=password, cnp=encrypted_cnp)
             db.session.add(new_user)
             db.session.commit()
             
@@ -417,6 +444,7 @@ Echipa RoVote
 
 if __name__ == '__main__':
     with app.app_context():
+        # db.drop_all()
         db.create_all()
     
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5000)
