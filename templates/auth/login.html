@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RoVote Login</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <h1>RoVote Login</h1>
+    {% if error %}
+        <div class="error-message">{{ error }}</div>
+    {% endif %}
+
+    <form method="POST" action="/auth/login">
+        {{ form.csrf_token }}
+        
+        <div class="form-group">
+            <h2>Email</h2>
+            {{ form.email(class="input-field", placeholder="Introduceți emailul") }}
+            {% if form.email.errors %}
+                <div class="error-message">{{ form.email.errors[0] }}</div>
+            {% endif %}
+        </div>
+        
+        <div class="form-group">
+            <h2>Password</h2>
+            {{ form.password(class="input-field", placeholder="Introduceți parola") }}
+            {% if form.password.errors %}
+                <div class="error-message">{{ form.password.errors[0] }}</div>
+            {% endif %}
+        </div>
+        
+        {{ form.submit(class="submit-button", value="Login") }}
+    </form>
+</body>
+</html>
