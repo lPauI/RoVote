@@ -1,13 +1,28 @@
 body {
-    margin: 0;
-    padding: 0;
-    min-height: 100vh;
-    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    padding: 2rem 1rem;
+    font-family: 'Inter', sans-serif;
+}
+
+body::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
+  background: linear-gradient(rgba(255,255,255,0) 0%, rgba(255,255,255,0.05) 100%);
+  animation: wave 8s ease-in-out infinite alternate;
+  z-index: -1;
+}
+
+@keyframes wave {
+  0% { transform: translateY(-5%); }
+  100% { transform: translateY(5%); }
 }
 
 h1 {
@@ -68,7 +83,7 @@ input[type="submit"]:hover {
 .error-message {
     color: #e53e3e;
     font-size: 0.875rem;
-    margin-top: -1rem;
+    margin-top: 0.25rem;
     margin-bottom: 1rem;
 }
 
@@ -76,10 +91,10 @@ input[type="submit"]:hover {
     width: 100%;
     padding: 0.75rem;
     margin-bottom: 1.5rem;
-    border: 2px solid #e2e8f0;
-    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
     font-size: 1rem;
-    transition: border-color 0.3s ease;
+    transition: all 0.2s;
 }
 
 .input-field::placeholder {
@@ -90,6 +105,11 @@ input[type="submit"]:hover {
 .input-field:focus {
     outline: none;
     border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.25);
+}
+
+.input-error {
+    border-color: #e53e3e;
 }
 
 .submit-button {
@@ -107,4 +127,169 @@ input[type="submit"]:hover {
 
 .submit-button:hover {
     background: #764ba2;
+}
+
+.button-primary {
+  background: #667eea;
+}
+
+.button-danger {
+  background: #e53e3e;
+}
+
+/* Add consistent card, form, and flash message styles */
+
+@media (max-width: 768px) {
+  .presidents-container,
+  .vote-container,
+  .stats-container {
+    padding: 1rem;
+    width: 90%;
+  }
+  
+  .button-group {
+    flex-direction: column;
+  }
+  
+  h1 {
+    font-size: 1.5rem;
+  }
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+/* For vote.html */
+.vote-confirmation-title {
+  font-size: 1.75rem;
+  color: #2d3748;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.candidate-name {
+  font-size: 1.25rem;
+  color: #4a5568;
+  padding: 1rem;
+  background: #f7fafc;
+  border-radius: 8px;
+  border-left: 4px solid #667eea;
+  margin-bottom: 2rem;
+}
+
+.warning-box {
+  background: #fff5f5;
+  border-left: 4px solid #e53e3e;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-top: 2rem;
+}
+
+.warning-icon {
+  color: #e53e3e;
+  margin-right: 0.5rem;
+}
+
+.president-card {
+  position: relative;
+  padding: 1.5rem;
+  border-radius: 10px;
+  background: white;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  border-left: 4px solid transparent;
+  margin-bottom: 1rem;
+}
+
+.president-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+  border-left: 4px solid #667eea;
+}
+
+.president-name {
+  font-weight: 600;
+  font-size: 1.125rem;
+  color: #2d3748;
+  margin-bottom: 0.5rem;
+}
+
+:focus {
+  outline: 2px solid #667eea;
+  outline-offset: 2px;
+}
+
+.screen-reader-text {
+  border: 0;
+  clip: rect(1px, 1px, 1px, 1px);
+  clip-path: inset(50%);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  width: 1px;
+}
+
+.loading {
+  opacity: 0.7;
+  cursor: wait;
+  pointer-events: none;
+}
+
+.loading-spinner {
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 1s ease-in-out infinite;
+  margin-left: 0.5rem;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.app-title {
+  font-size: 2.8rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 2rem;
+  position: relative;
+  letter-spacing: -0.5px;
+  background: linear-gradient(45deg, #3490dc, #6574cd, #9561e2);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradient 4s ease infinite;
+  text-shadow: 0 10px 20px rgba(0,0,0,0.1);
+  line-height: 1.2;
+}
+
+.app-title span {
+  display: block;
+  font-size: 1.4rem;
+  font-weight: 500;
+  opacity: 0.9;
+  margin-top: 0.5rem;
+}
+
+@keyframes gradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.presidents-container, .stats-container {
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.9);
 }
