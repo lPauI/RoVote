@@ -11,3 +11,4 @@ pytesseract==0.3.13
 flask-wtf==1.2.2
 flask-sqlalchemy==3.1.1
 pymysql==1.1.1
+email_validator==2.2.0
