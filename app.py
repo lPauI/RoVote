@@ -115,41 +115,47 @@ def home():
     names = [data[0] for data in vote_data]
     vote_counts = [data[1] for data in vote_data]
     
-    # Calculate percentages
-    total_votes = sum(vote_counts) if vote_counts else 1  # Avoid division by zero
-    vote_percentages = [(count / total_votes) * 100 for count in vote_counts]
+    # Check if there are any votes
+    has_votes = sum(vote_counts) > 0
+    plot_url = None
     
-    # Create the matplotlib figure
-    plt.figure(figsize=(10, 6))
-    plt.style.use('ggplot')
-    
-    # Create bar chart
-    bars = plt.bar(names, vote_counts, color='#667eea')
-    
-    # Add data labels showing both count and percentage
-    for i, (bar, percentage) in enumerate(zip(bars, vote_percentages)):
-        height = bar.get_height()
-        plt.text(bar.get_x() + bar.get_width()/2., height + 0.1,
-                 f'{int(height)} ({percentage:.1f}%)', ha='center', va='bottom')
-    
-    plt.xlabel('Candidați')
-    plt.ylabel('Număr de voturi')
-    plt.title('Statistica voturilor')
-    plt.tight_layout()
-    
-    # Convert plot to PNG image
-    img = BytesIO()
-    plt.savefig(img, format='png', bbox_inches='tight')
-    img.seek(0)
-    plot_url = base64.b64encode(img.getvalue()).decode('utf8')
-    plt.close()
+    if has_votes:
+        # Calculate percentages
+        total_votes = sum(vote_counts)
+        vote_percentages = [(count / total_votes) * 100 for count in vote_counts]
+        
+        # Create the matplotlib figure
+        plt.figure(figsize=(10, 6))
+        plt.style.use('ggplot')
+        
+        # Create bar chart
+        bars = plt.bar(names, vote_counts, color='#667eea')
+        
+        # Add data labels showing both count and percentage
+        for i, (bar, percentage) in enumerate(zip(bars, vote_percentages)):
+            height = bar.get_height()
+            plt.text(bar.get_x() + bar.get_width()/2., height + 0.1,
+                     f'{int(height)} ({percentage:.1f}%)', ha='center', va='bottom')
+        
+        plt.xlabel('Candidați')
+        plt.ylabel('Număr de voturi')
+        plt.title('Statistica voturilor')
+        plt.tight_layout()
+        
+        # Convert plot to PNG image
+        img = BytesIO()
+        plt.savefig(img, format='png', bbox_inches='tight')
+        img.seek(0)
+        plot_url = base64.b64encode(img.getvalue()).decode('utf8')
+        plt.close()
     
     return render_template('index.html', 
                           presidents=presidents, 
                           is_logged=is_logged, 
                           has_voted=has_voted,
                           is_admin=is_admin,
-                          plot_url=plot_url)
+                          plot_url=plot_url,
+                          has_votes=has_votes)
 
 
 @app.route("/auth/login", methods=['GET', 'POST'])
@@ -377,17 +383,17 @@ def end_elections():
         
         body = f"""Dragă votant,
 
-        Alegerile prezidențiale s-au încheiat.
+Alegerile prezidențiale s-au încheiat.
 
-        Câștigătorul este {winner_name} cu {winner_votes} voturi ({winner_percentage:.1f}%).
+Câștigătorul este {winner_name} cu {winner_votes} voturi ({winner_percentage:.1f}%).
 
-        {results_text}
+{results_text}
 
-        Vă mulțumim pentru participare!
+Vă mulțumim pentru participare!
 
-        Cu considerație,
-        Echipa RoVote
-        """
+Cu considerație,
+Echipa RoVote
+"""
         
         # Send email to each voter
         for voter in voters:

@@ -168,6 +168,13 @@
             border-radius: 8px;
         }
         
+        .no-votes-message {
+            text-align: center;
+            color: #718096;
+            font-style: italic;
+            margin: 2rem 0;
+        }
+        
         body {
             display: flex;
             flex-direction: column;
@@ -230,6 +237,7 @@
     </div>
     
     <!-- Vote statistics chart -->
+    {% if has_votes %}
     <div class="stats-container">
         <h2>Statistica voturilor</h2>
         <div class="chart-container">
@@ -244,5 +252,17 @@
         </div>
         {% endif %}
     </div>
+    {% elif is_admin %}
+    <div class="stats-container">
+        <h2>Statistica voturilor</h2>
+        <p class="no-votes-message">Nu există voturi înregistrate încă.</p>
+        
+        <div class="admin-controls">
+            <a href="{{ url_for('end_elections') }}" class="end-elections-button" onclick="return confirm('Sunteți sigur că doriți să încheiați alegerile? Această acțiune nu poate fi anulată.');">
+                Terminare alegeri
+            </a>
+        </div>
+    </div>
+    {% endif %}
 </body>
 </html>
